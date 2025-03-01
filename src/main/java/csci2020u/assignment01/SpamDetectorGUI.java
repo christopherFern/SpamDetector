@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -60,9 +61,18 @@ public class SpamDetectorGUI {
 
         ClassLoader classLoader = SpamDetectorGUI.class.getClassLoader();
 
+        URL testHamUrl = classLoader.getResource(mainDirectory.getName() + "/test/ham");
+        URL testSpamUrl = classLoader.getResource(mainDirectory.getName() + "/test/spam");
+
+        if (testHamUrl == null || testSpamUrl == null) {
+            JOptionPane.showMessageDialog(null, "Test folder structure not found! Please select the correct 'data' folder.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         // Get the paths for test data
-        File testHamFolder = new File(Objects.requireNonNull(classLoader.getResource("data/test/ham")).getFile());
-        File testSpamFolder = new File(Objects.requireNonNull(classLoader.getResource("data/test/spam")).getFile());
+        File testHamFolder = new File(Objects.requireNonNull(testHamUrl).getFile());
+        File testSpamFolder = new File(Objects.requireNonNull(testSpamUrl).getFile());
 
         // Test the model
         List<TestFile> results = spamDetector.test(testHamFolder, testSpamFolder, spamDetector.getWordProbabilities());

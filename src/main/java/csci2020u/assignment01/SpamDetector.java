@@ -12,7 +12,9 @@ public class SpamDetector {
 
     public SpamDetector() {
         // TODO: Put your File I/O code and spam detection algorithm here
+        //creating a hashmap to hold all the words and the probability that an email is spam if that word appears in an email
         this.wordProbabilities = new HashMap<>();
+
         File hamFolder = new File(Objects.requireNonNull(getClass().getResource("/data/train/ham")).getFile());
         File spamFolder = new File(Objects.requireNonNull(getClass().getResource("/data/train/spam")).getFile());
         File ham2Folder = new File(Objects.requireNonNull(getClass().getResource("/data/train/ham2")).getFile());
@@ -24,20 +26,16 @@ public class SpamDetector {
         File testHamFolder = new File(Objects.requireNonNull(getClass().getResource("/data/test/ham")).getFile());
         File testSpamFolder = new File(Objects.requireNonNull(getClass().getResource("/data/test/spam")).getFile());
 
-
         HashMap<String, Integer> trainHamFreq = new HashMap<>();
         HashMap<String, Integer> trainSpamFreq = new HashMap<>();
-
-
 
         updateWordFrequency(hamFiles, trainHamFreq);
         updateWordFrequency(ham2Files, trainHamFreq);
         updateWordFrequency(spamFiles, trainSpamFreq);
 
         this.wordProbabilities = calculateProbabilities(spamFiles, hamFiles, ham2Files, trainHamFreq, trainSpamFreq);
-
-
     }
+
     public HashMap<String, Double> getWordProbabilities() {
         return wordProbabilities;
     }
@@ -85,18 +83,16 @@ public class SpamDetector {
         int totalSpamFiles = spamFiles.length;
         int totalHamFiles = hamFiles.length + ham2Files.length;
 
-        System.out.println("Size of trainSpamFreq: " + trainSpamFreq.size());
-
         HashMap<String, Double> wordProbabilities = new HashMap<>();
+
         for (String word : trainSpamFreq.keySet()) {
-            double P_Wi_S = (trainSpamFreq.get(word) + 1) / (double) (totalSpamFiles+1);
+            double P_Wi_S = (trainSpamFreq.get(word)) / (double) (totalSpamFiles);
             double P_Wi_H;
             if (trainHamFreq.containsKey(word)) {
-                P_Wi_H = (trainHamFreq.get(word) + 1) / (double) (totalHamFiles+1);
+                P_Wi_H = (trainHamFreq.get(word)) / (double) (totalHamFiles);
             } else {
                 P_Wi_H = 0.0;
             }
-
 
             double P_S_Wi = (P_Wi_S) / (P_Wi_S + P_Wi_H);
             wordProbabilities.put(word, P_S_Wi);
@@ -129,6 +125,7 @@ public class SpamDetector {
 
         int truePositives = 0;
         int falsePositives = 0;
+
         //check each file for true positives and false positives
         for (TestFile file : results) {
             String predictedClass = file.getSpamProbability() > 0.9999999999999999 ? "Spam" : "Ham";
@@ -190,9 +187,5 @@ public class SpamDetector {
         return(1.0 / (1.0 + Math.exp(eta)));
 
     }
-//
-//    public static void main(String[] args) {
-//        new SpamDetector();
-//    }
 }
 
