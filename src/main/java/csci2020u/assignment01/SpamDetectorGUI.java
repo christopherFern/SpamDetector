@@ -69,7 +69,7 @@ public class SpamDetectorGUI {
 
         // Populate JTable
         for (TestFile file : results) {
-            tableModel.addRow(new Object[]{file.getFilename(), file.getSpamProbability() > 0.5 ? "Spam" : "Ham", file.getActualClass()});
+            tableModel.addRow(new Object[]{file.getFilename(), file.getSpamProbability() > 0.9999999999999999 ? "Spam" : "Ham", file.getActualClass()});
         }
 
         // Compute Accuracy & Precision
@@ -78,4 +78,6 @@ public class SpamDetectorGUI {
         accuracyLabel.setText("Accuracy: " + String.format("%.5f", accuracy));
         precisionLabel.setText("Precision: " + String.format("%.5f", precision));
     }
+
+
 }

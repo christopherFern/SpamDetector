@@ -28,11 +28,14 @@ public class SpamDetector {
         HashMap<String, Integer> trainHamFreq = new HashMap<>();
         HashMap<String, Integer> trainSpamFreq = new HashMap<>();
 
-        this.wordProbabilities = calculateProbabilities(spamFiles, hamFiles, ham2Files, trainHamFreq, trainSpamFreq);
+
 
         updateWordFrequency(hamFiles, trainHamFreq);
         updateWordFrequency(ham2Files, trainHamFreq);
         updateWordFrequency(spamFiles, trainSpamFreq);
+
+        this.wordProbabilities = calculateProbabilities(spamFiles, hamFiles, ham2Files, trainHamFreq, trainSpamFreq);
+
 
     }
     public HashMap<String, Double> getWordProbabilities() {
@@ -82,15 +85,18 @@ public class SpamDetector {
         int totalSpamFiles = spamFiles.length;
         int totalHamFiles = hamFiles.length + ham2Files.length;
 
+        System.out.println("Size of trainSpamFreq: " + trainSpamFreq.size());
+
         HashMap<String, Double> wordProbabilities = new HashMap<>();
         for (String word : trainSpamFreq.keySet()) {
-            double P_Wi_S = (trainSpamFreq.get(word) + 1) / (double) totalSpamFiles;
+            double P_Wi_S = (trainSpamFreq.get(word) + 1) / (double) (totalSpamFiles+1);
             double P_Wi_H;
             if (trainHamFreq.containsKey(word)) {
-                P_Wi_H = (trainHamFreq.get(word)) / (double) totalHamFiles;
+                P_Wi_H = (trainHamFreq.get(word) + 1) / (double) (totalHamFiles+1);
             } else {
                 P_Wi_H = 0.0;
             }
+
 
             double P_S_Wi = (P_Wi_S) / (P_Wi_S + P_Wi_H);
             wordProbabilities.put(word, P_S_Wi);
@@ -106,7 +112,7 @@ public class SpamDetector {
         int correctPredictions = 0;
         //check each file and see if prediction was correct
         for (TestFile file : results) {
-            String predictedClass = file.getSpamProbability() > 0.5 ? "Spam" : "Ham";
+            String predictedClass = file.getSpamProbability() > 0.9999999999999999 ? "Spam" : "Ham";
             if (predictedClass.equals(file.getActualClass())) {
                 correctPredictions++;
             }
@@ -125,7 +131,7 @@ public class SpamDetector {
         int falsePositives = 0;
         //check each file for true positives and false positives
         for (TestFile file : results) {
-            String predictedClass = file.getSpamProbability() > 0.5 ? "Spam" : "Ham";
+            String predictedClass = file.getSpamProbability() > 0.9999999999999999 ? "Spam" : "Ham";
             if (predictedClass.equals("Spam")) {
                 if (predictedClass.equals(file.getActualClass())) {
                     truePositives++;
@@ -184,5 +190,9 @@ public class SpamDetector {
         return(1.0 / (1.0 + Math.exp(eta)));
 
     }
+//
+//    public static void main(String[] args) {
+//        new SpamDetector();
+//    }
 }
 
