@@ -61,9 +61,11 @@ public class SpamDetectorGUI {
 
         ClassLoader classLoader = SpamDetectorGUI.class.getClassLoader();
 
+        //getting the directories based on the one picked by the user
         URL testHamUrl = classLoader.getResource(mainDirectory.getName() + "/test/ham");
         URL testSpamUrl = classLoader.getResource(mainDirectory.getName() + "/test/spam");
 
+        //checking if the directory has a test ham and a test spam directory if not it send an error
         if (testHamUrl == null || testSpamUrl == null) {
             JOptionPane.showMessageDialog(null, "Test folder structure not found! Please select the correct 'data' folder.",
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -88,6 +90,4 @@ public class SpamDetectorGUI {
         accuracyLabel.setText("Accuracy: " + String.format("%.5f", accuracy));
         precisionLabel.setText("Precision: " + String.format("%.5f", precision));
     }
-
-
 }
