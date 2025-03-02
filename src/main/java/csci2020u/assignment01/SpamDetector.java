@@ -12,49 +12,62 @@ public class SpamDetector {
 
     public SpamDetector() {
         // TODO: Put your File I/O code and spam detection algorithm here
+        //initializing a hashmap to hold all the words and the probability that an email is spam if that word appears in an email
         this.wordProbabilities = new HashMap<>();
+
+        //creating File objects and setting them to the ham and spam directories
         File hamFolder = new File(Objects.requireNonNull(getClass().getResource("/data/train/ham")).getFile());
         File spamFolder = new File(Objects.requireNonNull(getClass().getResource("/data/train/spam")).getFile());
         File ham2Folder = new File(Objects.requireNonNull(getClass().getResource("/data/train/ham2")).getFile());
 
+        //creating list of files from the directories above
         File[] hamFiles = hamFolder.listFiles();
         File[] spamFiles = spamFolder.listFiles();
         File[] ham2Files = ham2Folder.listFiles();
 
-        File testHamFolder = new File(Objects.requireNonNull(getClass().getResource("/data/test/ham")).getFile());
-        File testSpamFolder = new File(Objects.requireNonNull(getClass().getResource("/data/test/spam")).getFile());
-
-
+        //initializing hashmaps to hold all the words and how many emails they appear in. One for the spam folder and one for the ham folder
         HashMap<String, Integer> trainHamFreq = new HashMap<>();
         HashMap<String, Integer> trainSpamFreq = new HashMap<>();
 
-
-
+        //running the functions to populate  the hashmaps just above
         updateWordFrequency(hamFiles, trainHamFreq);
         updateWordFrequency(ham2Files, trainHamFreq);
         updateWordFrequency(spamFiles, trainSpamFreq);
 
+        // running the function to populate wordProbabilities the Hashmap at the very top
         this.wordProbabilities = calculateProbabilities(spamFiles, hamFiles, ham2Files, trainHamFreq, trainSpamFreq);
-
-
     }
+
+    //a getter for wordProbabilities
     public HashMap<String, Double> getWordProbabilities() {
         return wordProbabilities;
     }
 
+    //The function that takes an array of files and a HashMap<String, Integer> and populates the
+    // hashmap with every word in all the files and how many emails each word appears in.
     public void updateWordFrequency(File[] files, HashMap<String, Integer> freqMap) {
+        //checks if the array of files is empty
         if (files != null) {
+            //loops over each file
             for (int i = 0; i < files.length; i++) {
+                // creating a set of words so that words are not repeated
                 Set<String> wordsInCurrentFile = new HashSet<>();
                 BufferedReader bufferedReader = null;
                 try {
                     FileReader fileReader = new FileReader(files[i]);
                     bufferedReader = new BufferedReader(fileReader);
                     String line;
+                    //while loop going over each line in a file
                     while ((line = bufferedReader.readLine()) != null) {
+                        //for loop going through each word in a line
                         for (String word : line.split("\\s+")) {
+                            //makes all the words lower case so that words like "Joe" and "joe" are considered as the same word.
+                            //also only considers words made up of letters in the alphabet to not consider random symbols and numbers
                             word = word.replaceAll("[^a-zA-Z]", "").toLowerCase();
+                            //checks if word is empty
                             if (!word.isEmpty()) {
+                                //checks is word is already in the set, if it is not, it gets added to the set and updates the frequency map
+                                //if not it moves on
                                 if (!wordsInCurrentFile.contains(word)) {
                                     wordsInCurrentFile.add(word);
                                     if (freqMap.containsKey(word)) {
@@ -66,13 +79,19 @@ public class SpamDetector {
                             }
                         }
                     }
-                } catch (IOException ex) {
+
+                }
+                //error handling
+                catch (IOException ex) {
                     throw new RuntimeException(ex);
-                } finally {
+                }
+                //closing the file reader
+                finally {
                     if (bufferedReader != null) {
                         try {
                             bufferedReader.close();
-                        } catch (IOException e) {
+                        }
+                        catch (IOException e) {
                             System.err.println("Error closing BufferedReader: " + e.getMessage());
                         }
                     }
@@ -81,23 +100,27 @@ public class SpamDetector {
         }
     }
 
+    //function that takes the list of spam and ham files and frequency hashmaps and returns a hashmap
+    // of all the words and the probability that an email is spam if it includes this word
     public HashMap<String, Double> calculateProbabilities(File[] spamFiles, File[] hamFiles, File[] ham2Files, HashMap<String, Integer> trainHamFreq, HashMap<String, Integer> trainSpamFreq) {
-        int totalSpamFiles = spamFiles.length;
-        int totalHamFiles = hamFiles.length + ham2Files.length;
 
-        System.out.println("Size of trainSpamFreq: " + trainSpamFreq.size());
-
+        //initializing the hashmap that will be returned
         HashMap<String, Double> wordProbabilities = new HashMap<>();
+
+        //looping over the words in the spam frequency hashmap
         for (String word : trainSpamFreq.keySet()) {
-            double P_Wi_S = (trainSpamFreq.get(word) + 1) / (double) (totalSpamFiles+1);
+            //calculating the probability that the current word appears in a spam file
+            double P_Wi_S = (trainSpamFreq.get(word)) / (double) (spamFiles.length);
             double P_Wi_H;
+            //seeing if the word is in the key set of the Ham frequency hashmap
+            //then calculating the probability the current word appears in a Ham file
             if (trainHamFreq.containsKey(word)) {
-                P_Wi_H = (trainHamFreq.get(word) + 1) / (double) (totalHamFiles+1);
+                P_Wi_H = (trainHamFreq.get(word)) / (double) (hamFiles.length + ham2Files.length);
             } else {
                 P_Wi_H = 0.0;
             }
 
-
+            //calculating the probability that a file is spam because it contains the current word
             double P_S_Wi = (P_Wi_S) / (P_Wi_S + P_Wi_H);
             wordProbabilities.put(word, P_S_Wi);
         }
@@ -129,6 +152,7 @@ public class SpamDetector {
 
         int truePositives = 0;
         int falsePositives = 0;
+
         //check each file for true positives and false positives
         for (TestFile file : results) {
             String predictedClass = file.getSpamProbability() > 0.9999999999999999 ? "Spam" : "Ham";
@@ -188,11 +212,5 @@ public class SpamDetector {
             e.printStackTrace();
         }
         return(1.0 / (1.0 + Math.exp(eta)));
-
     }
-//
-//    public static void main(String[] args) {
-//        new SpamDetector();
-//    }
 }
-
