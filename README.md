@@ -1,3 +1,28 @@
+``# Assignment Submission
+![working output](src/main/resources/working.png)
+Shown above is our working spam detector. We updated the table display to show the filename and the predicted classification, and the actual classification. 
+
+## How to run
+Clone the repository using the following command
+```
+git clone https://github.com/OntarioTech-CS-program/w25-csci2020u-assignment01-a1-marshall-fernandes-haider
+```
+Navigate to the project directory
+```
+cd w25-csci2020u-assignment01-a1-marshall-fernandes-haider
+```
+run the project
+```
+java csci2020u.assignment01.SpamDetectorGUI
+```
+when using the application click the "Select Directory" button and navigate to the 'data' folder and load it into the program. The program will then display the results in the table, along with the accuracy and precision of the model.
+
+
+
+
+
+
+
 # Assignment 1 - Spam Detection
 CSCI 2020U: System Development and Integration
 
@@ -16,7 +41,7 @@ This part of the process aims to collect a set of $Pr(S|W_i)$ values for each wo
 ```math
 Pr\left(S|W_i\right) = \frac{Pr\left(W_i|S\right)}{Pr\left(W_i|S\right) + Pr\left(W_i|H\right)}
 ```
-<br>
+``<br>
 
 ```math
 Pr\left(W_i|S\right) = \frac{ \text{\# of spam files containing }W_i }{ \text{\# of spam files} }
