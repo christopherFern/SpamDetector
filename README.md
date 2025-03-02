@@ -1,4 +1,4 @@
-``# Assignment Submission
+# Assignment Submission
 ![working output](src/main/resources/working.png)
 Shown above is our working spam detector. We updated the table display to show the filename and the predicted classification, and the actual classification. 
 
